@@ -1,6 +1,6 @@
 # Foundation Event Replay API
 
-### Connection
+## Connection
 
 Users connect to the event stream replay API over a websocket located at `wss://<property>.kailabor.com/nex7/sas-reader/ws/historical-event-streamer` where `<property>` is the subdomain for the casino running Foundation. Clients enter parameters determining which events to stream as URL parameters following `?`. The API interprets the parameters as follows:
 
@@ -16,15 +16,15 @@ Users connect to the event stream replay API over a websocket located at `wss://
 | start_idx | Sets the starting `idx` field from which to read data. Acres4 uses this field to apply a global ordering to all data packets in the stream |
 | end_idx | Sets the ending `idx` field to which to read data. Acres4 uses this field to apply a global ordering to all data packets in the stream |
 
-If using `start` and `end` filters, leave `start_idx` and `end_idx` fields blank. Likewise, if using `start_idx` and `end_idx` fields, leave `start` and `end` fields blank. Users should also refrain from mixing the two filter sets. Because indexes are sequential, any `limit` set on a query bounded by `start_idx` and `end_idx` is ignored. Use these fields to bound your query instead. An example URL for reading data is as follows:
+If using `start` and `end` filters, leave `start_idx` and `end_idx` fields blank. Likewise, if using `start_idx` and `end_idx` fields, leave `start` and `end` fields blank. Because indexes are sequential, any `limit` set on a query bounded by `start_idx` and `end_idx` is ignored. Use these fields to bound your query instead. An example URL for reading data is as follows:
 
 `wss://mycasino.kailabor.com/nex7/sas-reader/ws/historical-event-streamer?start=1561705200000000000&end=1562184823000000000&limit=50000&raw-json=true`
 
 Users must upgrade all requests to a websocket to avoid a `400` error from the server.
 
-### Performance
+## Performance
 
-Acres 4 have tested the websocket connection with limits up to 1,000,000 packets. This limit is placed on the number of unified event packets processed through the server and may not reflect the number of flattened data packets. Some event packets do not yield a flattened packet and others yield multiple packets. Unified event packets that do not yield a flattened packet are used by Acres 4 for internal purposes only. Processing the same unified event packets yields the same set of flattened packets across multiple trials.
+Acres 4 have tested the websocket connection with limits up to 1,000,000 packets. This limit is placed on the number of packets processed from the underlying data structure through the server and may not reflect the number of flattened data packets. Some event packets do not yield a flattened packet and others yield multiple packets. Packets that do not yield a flattened packet are used by Acres 4 for internal purposes only. Processing the same underlying packets yields the same set of flattened packets across multiple trials.
 
 Testing shows the server writes packets at a rate of approximate 7,400 packets/second or 135µs/packet. Slower clients may not receive all packets the server has sent. Acres 4 tested client performance using an API implementation written in [Go](https://golang.org) that can introduce arbitrary delays into processing. Testing shows that the following maximum limits lead to consistent results based on client processing speed. For convenience, we have listed processing speed both in terms of processing time per packet and packets per second.
 
@@ -36,7 +36,7 @@ Testing shows the server writes packets at a rate of approximate 7,400 packets/s
 | 490µs | 2,000 | 100,000 |
 | 6ms | 165 | 50,000 |
 
-### Data Structure
+## Data Structure
 
 The server sends flattened data packets to the server in JSON form. Flattened packets take the following structure:
 
@@ -93,9 +93,9 @@ Fields are defined in the data dictionary below for all packet types
 
 Starting with version 1.3, Foundation reports meter changes with a new packet type `PACKET_SAS_METERS_CHANGE`. Data in this packet contains key value pairs of `<meter name> : <meter value>` where `<meter name>` is a string representation of any of the meters mentioned in `Slot Accounting System Protocol Version 6.02 Appendix C Table C-7`.
 
-### Data Dictionary
+## Data Dictionary
 
-### SAS_EVENT_CODE_85_SELF_TEST_OR_OPERATOR_MENU_HAS_BEEN_EXITED
+All packets other than `MachineInfo` and `PlayerInfo` contain the following fields
 
 | field | description |
 |---|-----|
@@ -107,7 +107,7 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 | host_id_player | The unique identifier for the player in the Bally system |
 | player_card_number | The player's card number |
 
-#### Meters
+and the following meters
 
 | field | description |
 |---|-----|
@@ -119,7 +119,8 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 | HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
 | Jackpot | Total value of jackpots paid as reported by the gaming machine |
 
-#### Data
+
+### SAS_EVENT_CODE_85_SELF_TEST_OR_OPERATOR_MENU_HAS_BEEN_EXITED
 
 | field | description |
 |---|-----|
@@ -131,59 +132,11 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
 
 ### SAS_EVENT_CODE_51_HANDPAY_IS_PENDING
-
-| field | description |
-|---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-
-#### Data
 
 | field | description |
 |---|-----|
@@ -195,30 +148,6 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | SASPoll | The code sent the gaming machine to request information |
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 | SASEvent | The SAS exception code for this real time SAS event |
@@ -227,59 +156,11 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
 
 ### SAS_POLL_1F_SEND_GAMING_MACHINE_ID_AND_INFORMATION
-
-| field | description |
-|---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-
-#### Data
 
 | field | description |
 |---|-----|
@@ -294,17 +175,6 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 ### MachineInfo
 
-| field | description |
-|---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Data
 
 | field | description |
 |---|-----|
@@ -337,57 +207,9 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | PhysicalReelStops | The current physical reel stops |
 
 ### SAS_EVENT_CODE_15_CARD_CAGE_WAS_OPENED
-
-| field | description |
-|---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-
-#### Data
 
 | field | description |
 |---|-----|
@@ -399,59 +221,11 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
 
 ### SAS_EVENT_CODE_66_CASH_OUT_BUTTON_PRESSED
-
-| field | description |
-|---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-
-#### Data
 
 | field | description |
 |---|-----|
@@ -463,58 +237,10 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | HostIDPlayer | The unique identifier for this player as reported by the Bally system |
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 
 ### SAS_EVENT_CODE_2B_BILL_REJECTED
-
-| field | description |
-|---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-
-#### Data
 
 | field | description |
 |---|-----|
@@ -527,59 +253,11 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
 
 ### SAS_EVENT_CODE_13_DROP_DOOR_WAS_OPENED
-
-| field | description |
-|---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-
-#### Data
 
 | field | description |
 |---|-----|
@@ -591,59 +269,11 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
 
 ### SAS_EVENT_CODE_89_COIN_CREDIT_WAGERED
-
-| field | description |
-|---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-
-#### Data
 
 | field | description |
 |---|-----|
@@ -655,30 +285,6 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
@@ -687,59 +293,11 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
 
 ### SAS_POLL_3D_SEND_CASH_OUT_TICKET_INFORMATION
-
-| field | description |
-|---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-
-#### Data
 
 | field | description |
 |---|-----|
@@ -753,30 +311,6 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | PhysicalStop | The position in which the reel stopped |
 | ReelNum | The number of the reel for which a stop is being reported |
 | SASEvent | The SAS exception code for this real time SAS event |
@@ -787,59 +321,11 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 
 ### SAS_EVENT_CODE_8C_GAME_SELECTED
-
-| field | description |
-|---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-
-#### Data
 
 | field | description |
 |---|-----|
@@ -852,60 +338,12 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | HostIDPlayer | The unique identifier for this player as reported by the Bally system |
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
 
 ### SAS_EVENT_CODE_9A_POWER_OFF_CASHBOX_DOOR_ACCESS
-
-| field | description |
-|---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-
-#### Data
 
 | field | description |
 |---|-----|
@@ -917,18 +355,6 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Data
-
-| field | description |
-|---|-----|
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
@@ -937,59 +363,11 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
 
 ### SAS_EVENT_CODE_3D_A_CASH_OUT_TICKET_HAS_BEEN_PRINTED
-
-| field | description |
-|---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-
-#### Data
 
 | field | description |
 |---|-----|
@@ -1002,30 +380,6 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
@@ -1034,57 +388,9 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Value of the current credit meter as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid credits canceled as reported by the gaming machine |
-| Jackpot | Total value of all jackpots as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | SelectedGameNumber | Indicates which game is being selected |
 
 ### SAS_EVENT_CODE_14_DROP_DOOR_WAS_CLOSED
-
-| field | description |
-|---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-
-#### Data
 
 | field | description |
 |---|-----|
@@ -1096,59 +402,11 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 
 ### SAS_POLL_A8_ENABLE_JACKPOT_HANDPAY_RESET_METHOD
-
-| field | description |
-|---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-
-#### Data
 
 | field | description |
 |---|-----|
@@ -1160,57 +418,9 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | SelectedGameNumber | Indicates which game is being selected |
 
 ### SAS_EVENT_CODE_17_AC_POWER_WAS_APPLIED_TO_GAMING_MACHINE
-
-| field | description |
-|---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-
-#### Data
 
 | field | description |
 |---|-----|
@@ -1222,59 +432,11 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | SASPoll | The code sent the gaming machine to request information |
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 | SASEvent | The SAS exception code for this real time SAS event |
 
 ### SAS_EVENT_CODE_3C_OPERATOR_CHANGED_OPTIONS
-
-| field | description |
-|---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-
-#### Data
 
 | field | description |
 |---|-----|
@@ -1286,59 +448,11 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | SASPoll | The code sent the gaming machine to request information |
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 | SASEvent | The SAS exception code for this real time SAS event |
 
 ### SAS_POLL_56_SAS_SEND_ENABLED_GAME_NUMBERS
-
-| field | description |
-|---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-
-#### Data
 
 | field | description |
 |---|-----|
@@ -1350,59 +464,11 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | SASPoll | The code sent the gaming machine to request information |
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 | SASEvent | The SAS exception code for this real time SAS event |
 
 ### SAS_EVENT_CODE_71_CHANGE_LAMP_ON
-
-| field | description |
-|---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-
-#### Data
 
 | field | description |
 |---|-----|
@@ -1414,59 +480,11 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
 
 ### SAS_POLL_4F_SEND_CURRENT_HOPPER_STATUS
-
-| field | description |
-|---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-
-#### Data
 
 | field | description |
 |---|-----|
@@ -1479,30 +497,6 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
 | HostIDPlayer | The unique identifier for this player as reported by the Bally system |
@@ -1512,59 +506,11 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Value of the current credit meter as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid credits canceled as reported by the gaming machine |
-| Jackpot | Total value of all jackpots as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | EnabledGameNumbers | The numbers for the games that are enabled |
 | Length | The length of the packet |
 | NumberOfGames | Total games implemented by this gaming machine |
 
 ### SAS_POLL_FF_REAL_TIME_EXCEPTION
-
-| field | description |
-|---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-
-#### Data
 
 | field | description |
 |---|-----|
@@ -1577,59 +523,11 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
 
 ### SAS_EVENT_CODE_7E_GAME_HAS_STARTED
-
-| field | description |
-|---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-
-#### Data
 
 | field | description |
 |---|-----|
@@ -1646,57 +544,9 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CurrentCredits | Value of the current credit meter as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid credits canceled as reported by the gaming machine |
-| Jackpot | Total value of all jackpots as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | NumberOfGames | Total games implemented by this gaming machine |
 
 ### SAS_EVENT_CODE_9B_POWER_OFF_DROP_DOOR_ACCESS
-
-| field | description |
-|---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-
-#### Data
 
 | field | description |
 |---|-----|
@@ -1705,30 +555,6 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 | SASPoll | The code sent the gaming machine to request information |
 
 ### SAS_EVENT_CODE_8A_GAME_RECALL_ENTRY_HAS_BEEN_DISPLAYED
-
-| field | description |
-|---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-
-#### Data
 
 | field | description |
 |---|-----|
@@ -1743,60 +569,12 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | SASPoll | The code sent the gaming machine to request information |
 | HostIDPlayer | The unique identifier for this player as reported by the Bally system |
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 | SASEvent | The SAS exception code for this real time SAS event |
 
 ### SAS_EVENT_CODE_4F_BILL_ACCEPTED
-
-| field | description |
-|---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-
-#### Data
 
 | field | description |
 |---|-----|
@@ -1812,30 +590,6 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | SasVersionNumber | The SAS version number this gaming machine implements |
 | SerialNumber | The serial number for this gaming machine as reported by the gaming machine |
 | Length | The length of the packet |
@@ -1844,57 +598,9 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | NumberOfGames | Total games implemented by this gaming machine |
 
 ### SAS_EVENT_CODE_19_CASHBOX_DOOR_WAS_OPENED
-
-| field | description |
-|---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-
-#### Data
 
 | field | description |
 |---|-----|
@@ -1906,59 +612,11 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | SASPoll | The code sent the gaming machine to request information |
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 | SASEvent | The SAS exception code for this real time SAS event |
 
 ### SAS_EVENT_CODE_20_GENERAL_TILT
-
-| field | description |
-|---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-
-#### Data
 
 | field | description |
 |---|-----|
@@ -1970,59 +628,11 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 
 ### SAS_EVENT_CODE_61_PRINTER_PAPER_OUT_ERROR
-
-| field | description |
-|---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-
-#### Data
 
 | field | description |
 |---|-----|
@@ -2035,59 +645,11 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
 
 ### SAS_EVENT_CODE_1B_CASHBOX_WAS_REMOVED
-
-| field | description |
-|---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-
-#### Data
 
 | field | description |
 |---|-----|
@@ -2099,59 +661,11 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
 
 ### SAS_EVENT_CODE_82_DISPLAY_METERS_OR_ATTENDANT_MENU_HAS_BEEN_ENTERED
-
-| field | description |
-|---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-
-#### Data
 
 | field | description |
 |---|-----|
@@ -2163,60 +677,12 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| Jackpot | Total value of all jackpots as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Value of the current credit meter as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid credits canceled as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | Length | The length of the packet |
 | Level | The hopper level as reported by the gaming machine |
 | PercentFull | How full the hopper is expressed as a percent |
 | Status | The current hopper status |
 
 ### SAS_POLL_1B_SEND_HANDPAY_INFORMATION
-
-| field | description |
-|---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-
-#### Data
 
 | field | description |
 |---|-----|
@@ -2233,47 +699,11 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Data
-
-| field | description |
-|---|-----|
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 
 ### SAS_POLL_48_SEND_LAST_ACCEPTED_BILL_INFORMATION
-
-| field | description |
-|---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-
-#### Data
 
 | field | description |
 |---|-----|
@@ -2285,30 +715,6 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
@@ -2317,59 +723,11 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Value of the current credit meter as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid credits canceled as reported by the gaming machine |
-| Jackpot | Total value of all jackpots as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | Length | The length of the packet |
 | SasVersionNumber | The SAS version number this gaming machine implements |
 | SerialNumber | The serial number for this gaming machine as reported by the gaming machine |
 
 ### SAS_EVENT_CODE_74_PRINTER_PAPER_LOW
-
-| field | description |
-|---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-
-#### Data
 
 | field | description |
 |---|-----|
@@ -2382,59 +740,11 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
 
 ### SAS_EVENT_CODE_7F_GAME_HAS_ENDED
-
-| field | description |
-|---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-
-#### Data
 
 | field | description |
 |---|-----|
@@ -2445,18 +755,6 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 | SASPoll | The code sent the gaming machine to request information |
 
 ### PlayerInfo
-
-| field | description |
-|---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Data
 
 | field | description |
 |---|-----|
@@ -2482,30 +780,6 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CurrentCredits | Value of the current credit meter as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid credits canceled as reported by the gaming machine |
-| Jackpot | Total value of all jackpots as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | PaytableId | The paytable ID |
 | ProgressiveGroup | The progressive group as reported by the gaming machine |
 | AdditionalId | Additional ID information |
@@ -2519,59 +793,11 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | Features | The features that are enabled |
 | GameNumber | The number of the game being selected. |
 | Reserved | Reserved |
 
 ### SAS_EVENT_CODE_29_BILL_ACCEPTOR_HARDWARE_FAILURE
-
-| field | description |
-|---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
-| Jackpot | Total value of jackpots paid as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Current credit meter value as reported by the gaming machine |
-
-#### Data
 
 | field | description |
 |---|-----|
@@ -2584,30 +810,6 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| Jackpot | Total value of all jackpots as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Value of the current credit meter as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid credits canceled as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | GameNumber | The game number currently in use |
 | Reserved | Reserved |
 | Features | The features that are enabled |
@@ -2616,59 +818,11 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
 
 | field | description |
 |---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Value of the current credit meter as reported by the gaming machine |
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid credits canceled as reported by the gaming machine |
-| Jackpot | Total value of all jackpots as reported by the gaming machine |
-
-#### Data
-
-| field | description |
-|---|-----|
 | Denom | The denom of the bills accepted |
 | Bills | Indicates the number of bills accepted |
 | Country | The country code for the bills accepted |
 
 ### SendPhysicalReelStopInformation
-
-| field | description |
-|---|-----|
-| type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
-| cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
-| player_card_number | The player's card number |
-
-#### Meters
-
-| field | description |
-|---|-----|
-| GamesPlayed | Total number of games played as reported by the gaming machine |
-| GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid credits canceled as reported by the gaming machine |
-| Jackpot | Total value of all jackpots as reported by the gaming machine |
-| CoinIn | Total value of coin in as reported by the gaming machine |
-| CoinOut | Total value of coin out as reported by the gaming machine |
-| CurrentCredits | Value of the current credit meter as reported by the gaming machine |
-
-#### Data
 
 | field | description |
 |---|-----|
