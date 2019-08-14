@@ -22,6 +22,8 @@ If using `start` and `end` filters, leave `start_idx` and `end_idx` fields blank
 
 Users must upgrade all requests to a websocket to avoid a `400` error from the server.
 
+The server streams all packets as an array of flat packets, even if there is only once flat packet sent at a time.
+
 ## Performance
 
 Acres 4 have tested the websocket connection with limits up to 1,000,000 packets. This limit is placed on the number of packets processed from the underlying data structure through the server and may not reflect the number of flattened data packets. Some event packets do not yield a flattened packet and others yield multiple packets. Packets that do not yield a flattened packet are used by Acres 4 for internal purposes only. Processing the same underlying packets yields the same set of flattened packets across multiple trials.
@@ -91,7 +93,64 @@ Fields are defined in the data dictionary below for all packet types
 
 ### Meter Movement
 
-Starting with version 1.3, Foundation reports meter changes with a new packet type `PACKET_SAS_METERS_CHANGE`. Data in this packet contains key value pairs of `<meter name> : <meter value>` where `<meter name>` is a string representation of any of the meters mentioned in `Slot Accounting System Protocol Version 6.02 Appendix C Table C-7`. A full list of the meter codes we use is at the bottom of this document.
+Starting with version 1.3, Foundation reports meter changes with a new packet type `PACKET_SAS_METERS_CHANGE`. Data in this packet contains key value pairs of `<meter name> : <meter value>` where `<meter name>` is a string representation of any of the meters mentioned in `Slot Accounting System Protocol Version 6.02 Appendix C Table C-7` or a standard Foundation data field. A full list of the meter codes we use is at the bottom of this document. An example packet is below:
+
+```
+{
+    "type":"PACKET_SAS_METERS_CHANGE",
+    "sas_serial_number":"0-2459-46397",
+    "player_card_number":"",
+    "asset_number":"1234",
+    "host_id_player":"",
+    "idx":37656,
+    "cache_time":1565039283259,
+    "data": {
+        "CURRENT_CREDITS":19550,
+        "ELECTRONIC_REGULAR_CASHABLE_TRANSFERS_TO_GAMING_MACHINE_CREDITS":288000,
+        "ELECTRONIC_REGULAR_CASHABLE_TRANSFERS_TO_HOST_CREDITS":103600,
+        "GAMES_LOST":544,
+        "GAMES_PLAYED":627,
+        "GAMES_WON":83,
+        "IN_HOUSE_CASHABLE_TRANSFERS_TO_GAMING_MACHINE_CENTS":288000,
+        "IN_HOUSE_CASHABLE_TRANSFERS_TO_HOST_CENTS":103600,
+        "IN_HOUSE_TRANSFERS_TO_GAMING_MACHINE_THAT_INCLUDED_CASHABLE_AMOUNTS_QUANTITY":27,
+        "IN_HOUSE_TRANSFERS_TO_HOST_THAT_INCLUDED_CASHABLE_AMOUNTS_QUANTITY":20,
+        "MIBTime":1562083037909,
+        "REGULAR_CASHABLE_TICKET_IN_CENTS":19850,
+        "REGULAR_CASHABLE_TICKET_IN_QUANTITY":8,
+        "REGULAR_CASHABLE_TICKET_OUT_CENTS":159600,
+        "REGULAR_CASHABLE_TICKET_OUT_QUANTITY":21,
+        "SPECIAL_METERS_LEGACY_BONUS_DEDUCTIBLE_METER":159700,
+        "SPECIAL_METERS_POWER_RESET":129,"SPECIAL_METERS_SLOT_DOOR_OPEN":123,
+        "SPECIAL_METERS_TOTAL_CREDIT_VALUE_OF_BILLS":100,
+        "SPECIAL_METERS_TOTAL_DOLLAR_VALUE_OF_BILLS":1,
+        "TOTAL_CANCELLED_CREDITS":429150,
+        "TOTAL_CASHABLE_TICKET_IN_CREDITS":19850,
+        "TOTAL_CASHABLE_TICKET_OUT_CREDITS":159600,
+        "TOTAL_COIN_IN_CREDITS":31225,
+        "TOTAL_COIN_OUT_CREDITS":185075,
+        "TOTAL_CREDITS_FROM_BILLS_ACCEPTED":100,
+        "TOTAL_DROP_CREDITS":307950,
+        "TOTAL_ELECTRONIC_TRANSFERS_TO_GAMING_MACHINE_CREDITS":288000,
+        "TOTAL_ELECTRONIC_TRANSFERS_TO_HOST_CREDITS":103600,
+        "TOTAL_HAND_PAID_CANCELLED_CREDITS":165950,
+        "TOTAL_HAND_PAID_CREDITS":165950,
+        "TOTAL_MACHINE_PAID_EXTERNAL_BONUS_WIN_CREDITS":159700,
+        "TOTAL_MACHINE_PAID_PAYTABLE_WIN_CREDITS":25375,
+        "TOTAL_NUMBER_OF_1_BILLS_ACCEPTED":1,
+        "TOTAL_REGULAR_CASHABLE_TICKET_IN_CREDITS":19850,
+        "TOTAL_SAS_CASHABLE_TICKET_IN_CENTS":19850,
+        "TOTAL_SAS_CASHABLE_TICKET_IN_QUANTITY":8,
+        "TOTAL_SAS_CASHABLE_TICKET_OUT_CENTS":159600,
+        "TOTAL_SAS_CASHABLE_TICKET_OUT_QUANTITY":21,
+        "TOTAL_TICKET_IN_CREDITS":19850,
+        "TOTAL_TICKET_OUT_CREDITS":159600,
+        "TOTAL_WON_CREDITS":185075,
+        "meter_snap_flag":129,
+        "num_meters":41
+    }
+}
+```
 
 ## Data Dictionary
 
@@ -119,7 +178,7 @@ and the following meters
 | HandpayCancelCredit | Total value of handpay canceled credits as reported by the gaming machine |
 | Jackpot | Total value of jackpots paid as reported by the gaming machine |
 
-Lastly, many but not all packets contain the following fields:
+Lastly, many but not all packets contain the following fields in the `data` portion of the packet:
 
 | field | description |
 |---|-----|
