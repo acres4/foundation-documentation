@@ -100,156 +100,92 @@ All packets other than `MachineInfo` and `PlayerInfo` contain the following fiel
 | field | description |
 |---|-----|
 | type | The type of data carried in this packet. |
-| idx | Monotonically increasing uint64 value used to globally order events in the Nex7 event stream |
+| idx | Monotonically increasing uint64 value used to glohost order events in the Nex7 event stream |
 | cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
 | sas_serial_number | String identifier for the machine at which a packet originated. |
-| asset_number | The asset number for the gaming machine as reported by the Bally system |
-| host_id_player | The unique identifier for the player in the Bally system |
+| asset_number | The asset number for the gaming machine as reported by the host system |
+| host_id_player | The unique identifier for the player in the host system |
 | player_card_number | The player's card number |
 
 and the following meters
 
-| field | description |
+| meter | description |
 |---|-----|
 | CoinIn | Total value of coin in as reported by the gaming machine |
 | CoinOut | Total value of coin out as reported by the gaming machine |
 | CurrentCredits | Current credit meter value as reported by the gaming machine |
 | GamesPlayed | Total number of games played as reported by the gaming machine |
 | GamesWon | Total number of games won as reported by the gaming machine |
-| HandpayCancelCredit | Total value of hand paid canceled credits as reported by the gaming machine |
+| HandpayCancelCredit | Total value of handpay canceled credits as reported by the gaming machine |
 | Jackpot | Total value of jackpots paid as reported by the gaming machine |
-
-
-### SAS_EVENT_CODE_85_SELF_TEST_OR_OPERATOR_MENU_HAS_BEEN_EXITED
-
-| field | description |
-|---|-----|
-| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
-| SASEvent | The SAS exception code for this real time SAS event |
-| SASPoll | The code sent the gaming machine to request information |
-
-### SAS_EVENT_CODE_2F_BILL_ACCEPTOR_VERSION_CHANGED
-
-| field | description |
-|---|-----|
-| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
-| SASEvent | The SAS exception code for this real time SAS event |
-| SASPoll | The code sent the gaming machine to request information |
-
-### SAS_EVENT_CODE_51_HANDPAY_IS_PENDING
-
-| field | description |
-|---|-----|
-| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
-| SASEvent | The SAS exception code for this real time SAS event |
-| SASPoll | The code sent the gaming machine to request information |
-
-### SAS_EVENT_CODE_98_POWER_OFF_CARD_CAGE_ACCESS
-
-| field | description |
-|---|-----|
-| SASPoll | The code sent the gaming machine to request information |
-| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
-| SASEvent | The SAS exception code for this real time SAS event |
-
-### SAS_EVENT_CODE_16_CARD_CAGE_WAS_CLOSED
-
-| field | description |
-|---|-----|
-| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
-| SASEvent | The SAS exception code for this real time SAS event |
-| SASPoll | The code sent the gaming machine to request information |
-
-### SAS_POLL_1F_SEND_GAMING_MACHINE_ID_AND_INFORMATION
-
-| field | description |
-|---|-----|
-| PaytableId | The paytable ID |
-| ProgressiveGroup | The progressive group as reported by the gaming machine |
-| AdditionalId | Additional ID information |
-| BasePercentage | The base percentage |
-| Denomination | The denomination |
-| GameId | The game ID |
-| GameOptions | The game options |
-| MaxBet | The maximum bet |
-
-### MachineInfo
-
-
-| field | description |
-|---|-----|
-| Bank | The bank at which this game is located as reported by the Bally system |
-| Crc | Used for internal diagnostics by Acres 4 |
-| Denom | The denom of the game as reported by the Bally system |
-| EndDate | The date on which the casino removed this gaming machine from use as reported by the Bally system |
-| HostDeviceID | The unique identifier of the gaming machine as reported by the Bally system |
-| Paylines | The paylines for this gaming machine as reported by the Bally system |
-| PurchaseDate | The date on which the casino purchased this gaming machine as reported by the Bally system |
-| SasSerialNumber | The serial number for this gaming machine as reported by the machine itself |
-| Seat | The seat at which this gaming machine is located as reported by the Bally system |
-| AssetNumber | The asset number as reported by the Bally system |
-| CabinetType | The cabinet type as reported by the Bally system |
-| LastUpdate | The last time this gaming machine was updated in the Acres 4 system |
-| Model | The model for this gaming machine as reported by the Bally system |
-| ProgramNumber | The program number for this gaming machine as reported by the Bally system |
-| Reels | The reels for this game as reported by the Bally system |
-| SealNumber | The seal number of the gaming machine as reported by the Bally system |
-| TokenDenom | The token denomination as reported by the Bally system |
-| GLIConfirmation | The GLI confirmation number for this gaming machine as reported by the Bally system |
-| GameTheme | The game theme as reported by the Bally system |
-| HoldPct | The hold percentage for this gaming machine as reported by the Bally system |
-| Mfr | The manufacturer name as reported by the Bally system |
-| Section | The section at which this gaming machine is located as reported by the Bally system |
-| SerialNumber | The serial number for this gaming machine as reported by the gaming machine |
-| StartDate | The date on which the casino put this machine into service as reported by the Bally system |
-
-### SAS_POLL_8F_SEND_PHYSICAL_REEL_STOP_INFORMATION
-
-| field | description |
-|---|-----|
-| PhysicalReelStops | The current physical reel stops |
-
-### SAS_EVENT_CODE_15_CARD_CAGE_WAS_OPENED
-
-| field | description |
-|---|-----|
-| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
-| SASEvent | The SAS exception code for this real time SAS event |
-| SASPoll | The code sent the gaming machine to request information |
-
-### SAS_EVENT_CODE_52_HANDPAY_WAS_RESET
-
-| field | description |
-|---|-----|
-| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
-| SASEvent | The SAS exception code for this real time SAS event |
-| SASPoll | The code sent the gaming machine to request information |
-
-### SAS_EVENT_CODE_66_CASH_OUT_BUTTON_PRESSED
-
-| field | description |
-|---|-----|
-| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
-| SASEvent | The SAS exception code for this real time SAS event |
-| SASPoll | The code sent the gaming machine to request information |
 
 ### CriticalMeterMovement
 
 | field | description |
 |---|-----|
-| HostIDPlayer | The unique identifier for this player as reported by the Bally system |
+| HostIDPlayer | The unique identifier for this player as reported by the host system |
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 
-### SAS_EVENT_CODE_2B_BILL_REJECTED
+### MachineInfo
 
 | field | description |
 |---|-----|
-| SASPoll | The code sent the gaming machine to request information |
-| HostIDPlayer | The unique identifier for this player as reported by the Bally system |
+| Bank | The bank at which this game is located as reported by the host system |
+| Crc | Used for internal diagnostics by Acres 4 |
+| Denom | The denom of the game as reported by the host system |
+| EndDate | The date on which the casino removed this gaming machine from use as reported by the host system |
+| HostDeviceID | The unique identifier of the gaming machine as reported by the host system |
+| Paylines | The paylines for this gaming machine as reported by the host system |
+| PurchaseDate | The date on which the casino purchased this gaming machine as reported by the host system |
+| SasSerialNumber | The serial number for this gaming machine as reported by the machine itself |
+| Seat | The seat at which this gaming machine is located as reported by the host system |
+| AssetNumber | The asset number as reported by the host system |
+| CabinetType | The cabinet type as reported by the host system |
+| LastUpdate | The last time this gaming machine was updated in the Acres 4 system |
+| Model | The model for this gaming machine as reported by the host system |
+| ProgramNumber | The program number for this gaming machine as reported by the host system |
+| Reels | The reels for this game as reported by the host system |
+| SealNumber | The seal number of the gaming machine as reported by the host system |
+| TokenDenom | The token denomination as reported by the host system |
+| GLIConfirmation | The GLI confirmation number for this gaming machine as reported by the host system |
+| GameTheme | The game theme as reported by the host system |
+| HoldPct | The hold percentage for this gaming machine as reported by the host system |
+| Mfr | The manufacturer name as reported by the host system |
+| Section | The section at which this gaming machine is located as reported by the host system |
+| SerialNumber | The serial number for this gaming machine as reported by the gaming machine |
+| StartDate | The date on which the casino put this machine into service as reported by the host system |
+
+### PlayerInfo
+
+| field | description |
+|---|-----|
+| LastEventTime | The last time at which Acres 4 saw an event for this player |
+| LastLocation | The last location of the player |
+| LastName | The last name of this player |
+| LoyaltyTierStr | Same as MembershipTierStr |
+| Banned | If true, the player is banned from this casino |
+| BirthDate | The date of birth for this player |
+| CacheTime | The time at which the Acres 4 global event collector collected this event |
+| CardNumber | The card number for this player |
+| ZipCode | The zip code for this player |
+| ZipExt | The zip code extension for the player |
+| HostClubNumber | The player number as reported by the host system |
+| MembershipTierStr | The string representation of the membership tier level for this player |
+| Theo | The theoretical win for this player |
+| Crc | Used for internal diagnostics by Acres 4 |
+| FirstName | The first name of the player |
+| Gender | The gender for this player |
+| HostIdPlayer | The unique identifier for this player as reported by the host system |
+
+### SAS_EVENT_CODE_11_SLOT_DOOR_WAS_OPENED
+
+| field | description |
+|---|-----|
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 | SASEvent | The SAS exception code for this real time SAS event |
+| SASPoll | The code sent the gaming machine to request information |
 
-### SAS_EVENT_CODE_1D_BELLY_DOOR_WAS_OPENED
+### SAS_EVENT_CODE_12_SLOT_DOOR_WAS_CLOSED
 
 | field | description |
 |---|-----|
@@ -265,7 +201,15 @@ and the following meters
 | SASPoll | The code sent the gaming machine to request information |
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 
-### SAS_EVENT_CODE_83_DISPLAY_METERS_OR_ATTENDANT_MENU_HAS_BEEN_EXITED
+### SAS_EVENT_CODE_14_DROP_DOOR_WAS_CLOSED
+
+| field | description |
+|---|-----|
+| SASPoll | The code sent the gaming machine to request information |
+| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
+| SASEvent | The SAS exception code for this real time SAS event |
+
+### SAS_EVENT_CODE_15_CARD_CAGE_WAS_OPENED
 
 | field | description |
 |---|-----|
@@ -273,13 +217,21 @@ and the following meters
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
 
-### SAS_EVENT_CODE_89_COIN_CREDIT_WAGERED
+### SAS_EVENT_CODE_16_CARD_CAGE_WAS_CLOSED
 
 | field | description |
 |---|-----|
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
+
+### SAS_EVENT_CODE_17_AC_POWER_WAS_APPLIED_TO_GAMING_MACHINE
+
+| field | description |
+|---|-----|
+| SASEvent | The SAS exception code for this real time SAS event |
+| SASPoll | The code sent the gaming machine to request information |
+| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 
 ### SAS_EVENT_CODE_18_AC_POWER_WAS_LOST_FROM_GAMING_MACHINE
 
@@ -289,6 +241,113 @@ and the following meters
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
 
+### SAS_EVENT_CODE_19_CASHBOX_DOOR_WAS_OPENED
+
+| field | description |
+|---|-----|
+| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
+| SASEvent | The SAS exception code for this real time SAS event |
+| SASPoll | The code sent the gaming machine to request information |
+
+### SAS_EVENT_CODE_1A_CASHBOX_DOOR_WAS_CLOSED
+
+| field | description |
+|---|-----|
+| SASPoll | The code sent the gaming machine to request information |
+| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
+| SASEvent | The SAS exception code for this real time SAS event |
+
+### SAS_EVENT_CODE_1B_CASHBOX_WAS_REMOVED
+
+| field | description |
+|---|-----|
+| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
+| SASEvent | The SAS exception code for this real time SAS event |
+| SASPoll | The code sent the gaming machine to request information |
+
+### SAS_EVENT_CODE_1C_CASHBOX_WAS_INSTALLED
+
+| field | description |
+|---|-----|
+| SASEvent | The SAS exception code for this real time SAS event |
+| SASPoll | The code sent the gaming machine to request information |
+| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
+
+### SAS_EVENT_CODE_1D_BELLY_DOOR_WAS_OPENED
+
+| field | description |
+|---|-----|
+| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
+| SASEvent | The SAS exception code for this real time SAS event |
+| SASPoll | The code sent the gaming machine to request information |
+
+### SAS_EVENT_CODE_1E_BELLY_DOOR_WAS_CLOSED
+
+| field | description |
+|---|-----|
+| SASEvent | The SAS exception code for this real time SAS event |
+| SASPoll | The code sent the gaming machine to request information |
+| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
+
+### SAS_EVENT_CODE_20_GENERAL_TILT
+
+| field | description |
+|---|-----|
+| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
+| SASEvent | The SAS exception code for this real time SAS event |
+| SASPoll | The code sent the gaming machine to request information |
+
+### SAS_EVENT_CODE_27_CASHBOX_FULL_DETECTED
+
+| field | description |
+|---|-----|
+| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
+| SASEvent | The SAS exception code for this real time SAS event |
+| SASPoll | The code sent the gaming machine to request information |
+
+### SAS_EVENT_CODE_28_BILL_JAM
+
+| field | description |
+|---|-----|
+| SASPoll | The code sent the gaming machine to request information |
+| HostIDPlayer | The unique identifier for this player as reported by the host system |
+| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
+| SASEvent | The SAS exception code for this real time SAS event |
+
+### SAS_EVENT_CODE_29_BILL_ACCEPTOR_HARDWARE_FAILURE
+
+| field | description |
+|---|-----|
+| HostIDPlayer | The unique identifier for this player as reported by the host system |
+| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
+| SASEvent | The SAS exception code for this real time SAS event |
+| SASPoll | The code sent the gaming machine to request information |
+
+### SAS_EVENT_CODE_2B_BILL_REJECTED
+
+| field | description |
+|---|-----|
+| SASPoll | The code sent the gaming machine to request information |
+| HostIDPlayer | The unique identifier for this player as reported by the host system |
+| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
+| SASEvent | The SAS exception code for this real time SAS event |
+
+### SAS_EVENT_CODE_2F_BILL_ACCEPTOR_VERSION_CHANGED
+
+| field | description |
+|---|-----|
+| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
+| SASEvent | The SAS exception code for this real time SAS event |
+| SASPoll | The code sent the gaming machine to request information |
+
+### SAS_EVENT_CODE_32_CMOS_RAM_ERROR
+
+| field | description |
+|---|-----|
+| SASEvent | The SAS exception code for this real time SAS event |
+| SASPoll | The code sent the gaming machine to request information |
+| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
+
 ### SAS_EVENT_CODE_34_EEPROM_ERROR
 
 | field | description |
@@ -297,25 +356,22 @@ and the following meters
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
 
-### SAS_POLL_3D_SEND_CASH_OUT_TICKET_INFORMATION
+### SAS_EVENT_CODE_3C_OPERATOR_CHANGED_OPTIONS
 
 | field | description |
 |---|-----|
-| AmountInCents | The value of the cash out ticket in cents |
-| HostIDPlayer | The unique identifier for this player as reported by the Bally system |
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
-| SASPoll | The code sent the gaming machine to request information |
-| TicketNumber | The ticket number |
-
-### SAS_EVENT_CODE_88_REEL_N_HAS_STOPPED
-
-| field | description |
-|---|-----|
-| PhysicalStop | The position in which the reel stopped |
-| ReelNum | The number of the reel for which a stop is being reported |
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
+
+### SAS_EVENT_CODE_3D_A_CASH_OUT_TICKET_HAS_BEEN_PRINTED
+
+| field | description |
+|---|-----|
+| HostIDPlayer | The unique identifier for this player as reported by the host system |
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
+| SASEvent | The SAS exception code for this real time SAS event |
+| SASPoll | The code sent the gaming machine to request information |
 
 ### SAS_EVENT_CODE_42_REEL_2_TILT
 
@@ -325,11 +381,46 @@ and the following meters
 | SASPoll | The code sent the gaming machine to request information |
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 
-### SAS_EVENT_CODE_8C_GAME_SELECTED
+### SAS_EVENT_CODE_43_REEL_3_TILT
 
 | field | description |
 |---|-----|
-| GameNumber | The number of the game being selected. |
+| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
+| SASEvent | The SAS exception code for this real time SAS event |
+| SASPoll | The code sent the gaming machine to request information |
+
+### SAS_EVENT_CODE_4F_BILL_ACCEPTED
+
+| field | description |
+|---|-----|
+| SASEvent | The SAS exception code for this real time SAS event |
+| SASPoll | The code sent the gaming machine to request information |
+| Bills | Indicates the number of bills accepted |
+| CountryCode | Indicates the country code for the bill accepted |
+| DenomCode | Indicates the denomination code for the bill accepted |
+| HostIDPlayer | The unique identifier for this player as reported by the host system |
+| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
+
+### SAS_EVENT_CODE_51_HANDPAY_IS_PENDING
+
+| field | description |
+|---|-----|
+| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
+| SASEvent | The SAS exception code for this real time SAS event |
+| SASPoll | The code sent the gaming machine to request information |
+
+### SAS_EVENT_CODE_52_HANDPAY_WAS_RESET
+
+| field | description |
+|---|-----|
+| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
+| SASEvent | The SAS exception code for this real time SAS event |
+| SASPoll | The code sent the gaming machine to request information |
+
+### SAS_EVENT_CODE_53_NO_PROGRESSIVE_INFORMATION_HAS_BEEN_RECEIVED_FOR_5_SECONDS
+
+| field | description |
+|---|-----|
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
@@ -338,12 +429,29 @@ and the following meters
 
 | field | description |
 |---|-----|
-| HostIDPlayer | The unique identifier for this player as reported by the Bally system |
+| HostIDPlayer | The unique identifier for this player as reported by the host system |
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
 
-### SAS_EVENT_CODE_9A_POWER_OFF_CASHBOX_DOOR_ACCESS
+### SAS_EVENT_CODE_60_PRINTER_COMMUNICATION_ERROR
+
+| field | description |
+|---|-----|
+| SASPoll | The code sent the gaming machine to request information |
+| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
+| SASEvent | The SAS exception code for this real time SAS event |
+
+### SAS_EVENT_CODE_61_PRINTER_PAPER_OUT_ERROR
+
+| field | description |
+|---|-----|
+| HostIDPlayer | The unique identifier for this player as reported by the host system |
+| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
+| SASEvent | The SAS exception code for this real time SAS event |
+| SASPoll | The code sent the gaming machine to request information |
+
+### SAS_EVENT_CODE_66_CASH_OUT_BUTTON_PRESSED
 
 | field | description |
 |---|-----|
@@ -359,84 +467,7 @@ and the following meters
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
 
-### SAS_EVENT_CODE_84_SELF_TEST_OR_OPERATOR_MENU_HAS_BEEN_ENTERED
-
-| field | description |
-|---|-----|
-| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
-| SASEvent | The SAS exception code for this real time SAS event |
-| SASPoll | The code sent the gaming machine to request information |
-
-### SAS_EVENT_CODE_3D_A_CASH_OUT_TICKET_HAS_BEEN_PRINTED
-
-| field | description |
-|---|-----|
-| HostIDPlayer | The unique identifier for this player as reported by the Bally system |
-| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
-| SASEvent | The SAS exception code for this real time SAS event |
-| SASPoll | The code sent the gaming machine to request information |
-
-### SAS_EVENT_CODE_43_REEL_3_TILT
-
-| field | description |
-|---|-----|
-| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
-| SASEvent | The SAS exception code for this real time SAS event |
-| SASPoll | The code sent the gaming machine to request information |
-
-### SendSelectedGameNumber
-
-| field | description |
-|---|-----|
-| SelectedGameNumber | Indicates which game is being selected |
-
-### SAS_EVENT_CODE_14_DROP_DOOR_WAS_CLOSED
-
-| field | description |
-|---|-----|
-| SASPoll | The code sent the gaming machine to request information |
-| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
-| SASEvent | The SAS exception code for this real time SAS event |
-
-### SAS_EVENT_CODE_1C_CASHBOX_WAS_INSTALLED
-
-| field | description |
-|---|-----|
-| SASEvent | The SAS exception code for this real time SAS event |
-| SASPoll | The code sent the gaming machine to request information |
-| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
-
-### SAS_POLL_A8_ENABLE_JACKPOT_HANDPAY_RESET_METHOD
-
-| field | description |
-|---|-----|
-| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
-| SASPoll | The code sent the gaming machine to request information |
-| AckCode | Used by Acres 4 to implement the SAS protocol |
-
-### SAS_POLL_55_SEND_SELECTED_GAME_NUMBER
-
-| field | description |
-|---|-----|
-| SelectedGameNumber | Indicates which game is being selected |
-
-### SAS_EVENT_CODE_17_AC_POWER_WAS_APPLIED_TO_GAMING_MACHINE
-
-| field | description |
-|---|-----|
-| SASEvent | The SAS exception code for this real time SAS event |
-| SASPoll | The code sent the gaming machine to request information |
-| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
-
-### SAS_EVENT_CODE_1A_CASHBOX_DOOR_WAS_CLOSED
-
-| field | description |
-|---|-----|
-| SASPoll | The code sent the gaming machine to request information |
-| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
-| SASEvent | The SAS exception code for this real time SAS event |
-
-### SAS_EVENT_CODE_3C_OPERATOR_CHANGED_OPTIONS
+### SAS_EVENT_CODE_71_CHANGE_LAMP_ON
 
 | field | description |
 |---|-----|
@@ -452,46 +483,14 @@ and the following meters
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 | SASEvent | The SAS exception code for this real time SAS event |
 
-### SAS_POLL_56_SAS_SEND_ENABLED_GAME_NUMBERS
+### SAS_EVENT_CODE_74_PRINTER_PAPER_LOW
 
 | field | description |
 |---|-----|
-| EnabledGameNumbers | The numbers for the games that are enabled |
-| Length | The length of the packet |
-| NumberOfGames | Total games implemented by this gaming machine |
-
-### SAS_EVENT_CODE_60_PRINTER_COMMUNICATION_ERROR
-
-| field | description |
-|---|-----|
-| SASPoll | The code sent the gaming machine to request information |
-| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
-| SASEvent | The SAS exception code for this real time SAS event |
-
-### SAS_EVENT_CODE_71_CHANGE_LAMP_ON
-
-| field | description |
-|---|-----|
+| HostIDPlayer | The unique identifier for this player as reported by the host system |
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
-
-### SAS_EVENT_CODE_11_SLOT_DOOR_WAS_OPENED
-
-| field | description |
-|---|-----|
-| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
-| SASEvent | The SAS exception code for this real time SAS event |
-| SASPoll | The code sent the gaming machine to request information |
-
-### SAS_POLL_4F_SEND_CURRENT_HOPPER_STATUS
-
-| field | description |
-|---|-----|
-| Length | The length of the packet |
-| Level | The hopper level as reported by the gaming machine |
-| PercentFull | How full the hopper is expressed as a percent |
-| Status | The current hopper status |
 
 ### SAS_EVENT_CODE_78_PRINTER_CARRIAGE_JAMMED
 
@@ -499,27 +498,10 @@ and the following meters
 |---|-----|
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
-| HostIDPlayer | The unique identifier for this player as reported by the Bally system |
+| HostIDPlayer | The unique identifier for this player as reported by the host system |
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 
-### SendEnabledGameNumbers
-
-| field | description |
-|---|-----|
-| EnabledGameNumbers | The numbers for the games that are enabled |
-| Length | The length of the packet |
-| NumberOfGames | Total games implemented by this gaming machine |
-
-### SAS_POLL_FF_REAL_TIME_EXCEPTION
-
-| field | description |
-|---|-----|
-| HostIDPlayer | The unique identifier for this player as reported by the Bally system |
-| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
-| SASEvent | The SAS exception code for this real time SAS event |
-| SASPoll | The code sent the gaming machine to request information |
-
-### SAS_EVENT_CODE_53_NO_PROGRESSIVE_INFORMATION_HAS_BEEN_RECEIVED_FOR_5_SECONDS
+### SAS_EVENT_CODE_7B_BILL_VALIDATOR
 
 | field | description |
 |---|-----|
@@ -538,15 +520,19 @@ and the following meters
 | TotalCoinInMeter | The value of the total coin in meter at the start of the game |
 | WagerType | The wager type |
 | CreditsWagered | The number of credits wagered on this game |
-| HostIDPlayer | The unique identifier for this player as reported by the Bally system |
+| HostIDPlayer | The unique identifier for this player as reported by the host system |
 
-### SendTotalNumberOfGamesImplemented
+### SAS_EVENT_CODE_7F_GAME_HAS_ENDED
 
 | field | description |
 |---|-----|
-| NumberOfGames | Total games implemented by this gaming machine |
+| GameWin | The amount won from the game |
+| HostIDPlayer | The unique identifier for this player as reported by the host system |
+| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
+| SASEvent | The SAS exception code for this real time SAS event |
+| SASPoll | The code sent the gaming machine to request information |
 
-### SAS_EVENT_CODE_9B_POWER_OFF_DROP_DOOR_ACCESS
+### SAS_EVENT_CODE_82_DISPLAY_METERS_OR_ATTENDANT_MENU_HAS_BEEN_ENTERED
 
 | field | description |
 |---|-----|
@@ -554,53 +540,23 @@ and the following meters
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
 
-### SAS_EVENT_CODE_8A_GAME_RECALL_ENTRY_HAS_BEEN_DISPLAYED
+### SAS_EVENT_CODE_83_DISPLAY_METERS_OR_ATTENDANT_MENU_HAS_BEEN_EXITED
 
 | field | description |
 |---|-----|
-| SASEvent | The SAS exception code for this real time SAS event |
-| SASPoll | The code sent the gaming machine to request information |
-| GameNumber | The number of the game being selected. |
-| HostIDPlayer | The unique identifier for this player as reported by the Bally system |
-| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
-| RecallIndex | The recall index for the game being recalled |
-
-### SAS_EVENT_CODE_28_BILL_JAM
-
-| field | description |
-|---|-----|
-| SASPoll | The code sent the gaming machine to request information |
-| HostIDPlayer | The unique identifier for this player as reported by the Bally system |
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 | SASEvent | The SAS exception code for this real time SAS event |
+| SASPoll | The code sent the gaming machine to request information |
 
-### SAS_EVENT_CODE_4F_BILL_ACCEPTED
+### SAS_EVENT_CODE_84_SELF_TEST_OR_OPERATOR_MENU_HAS_BEEN_ENTERED
 
 | field | description |
 |---|-----|
+| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
-| Bills | Indicates the number of bills accepted |
-| CountryCode | Indicates the country code for the bill accepted |
-| DenomCode | Indicates the denomination code for the bill accepted |
-| HostIDPlayer | The unique identifier for this player as reported by the Bally system |
-| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 
-### SAS_POLL_54_SEND_SAS_VERSION_ID_AND_GAMING_MACHINE_SERIAL_NUMBER
-
-| field | description |
-|---|-----|
-| SasVersionNumber | The SAS version number this gaming machine implements |
-| SerialNumber | The serial number for this gaming machine as reported by the gaming machine |
-| Length | The length of the packet |
-
-### SAS_POLL_51_SEND_TOTAL_NUMBER_OF_GAMES_IMPLEMENTED
-
-| field | description |
-|---|-----|
-| NumberOfGames | Total games implemented by this gaming machine |
-
-### SAS_EVENT_CODE_19_CASHBOX_DOOR_WAS_OPENED
+### SAS_EVENT_CODE_85_SELF_TEST_OR_OPERATOR_MENU_HAS_BEEN_EXITED
 
 | field | description |
 |---|-----|
@@ -616,7 +572,17 @@ and the following meters
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 | SASEvent | The SAS exception code for this real time SAS event |
 
-### SAS_EVENT_CODE_20_GENERAL_TILT
+### SAS_EVENT_CODE_88_REEL_N_HAS_STOPPED
+
+| field | description |
+|---|-----|
+| PhysicalStop | The position in which the reel stopped |
+| ReelNum | The number of the reel for which a stop is being reported |
+| SASEvent | The SAS exception code for this real time SAS event |
+| SASPoll | The code sent the gaming machine to request information |
+| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
+
+### SAS_EVENT_CODE_89_COIN_CREDIT_WAGERED
 
 | field | description |
 |---|-----|
@@ -624,38 +590,33 @@ and the following meters
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
 
-### SAS_EVENT_CODE_1E_BELLY_DOOR_WAS_CLOSED
+### SAS_EVENT_CODE_8A_GAME_RECALL_ENTRY_HAS_BEEN_DISPLAYED
 
 | field | description |
 |---|-----|
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
+| GameNumber | The number of the game being selected. |
+| HostIDPlayer | The unique identifier for this player as reported by the host system |
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
+| RecallIndex | The recall index for the game being recalled |
 
-### SAS_EVENT_CODE_61_PRINTER_PAPER_OUT_ERROR
+### SAS_EVENT_CODE_8C_GAME_SELECTED
 
 | field | description |
 |---|-----|
-| HostIDPlayer | The unique identifier for this player as reported by the Bally system |
+| GameNumber | The number of the game being selected. |
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
 
-### SAS_EVENT_CODE_27_CASHBOX_FULL_DETECTED
+### SAS_EVENT_CODE_98_POWER_OFF_CARD_CAGE_ACCESS
 
 | field | description |
 |---|-----|
+| SASPoll | The code sent the gaming machine to request information |
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 | SASEvent | The SAS exception code for this real time SAS event |
-| SASPoll | The code sent the gaming machine to request information |
-
-### SAS_EVENT_CODE_1B_CASHBOX_WAS_REMOVED
-
-| field | description |
-|---|-----|
-| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
-| SASEvent | The SAS exception code for this real time SAS event |
-| SASPoll | The code sent the gaming machine to request information |
 
 ### SAS_EVENT_CODE_99_POWER_OFF_SLOT_DOOR_ACCESS
 
@@ -665,7 +626,7 @@ and the following meters
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
 
-### SAS_EVENT_CODE_82_DISPLAY_METERS_OR_ATTENDANT_MENU_HAS_BEEN_ENTERED
+### SAS_EVENT_CODE_9A_POWER_OFF_CASHBOX_DOOR_ACCESS
 
 | field | description |
 |---|-----|
@@ -673,14 +634,13 @@ and the following meters
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
 
-### SendCurrentHopperStatus
+### SAS_EVENT_CODE_9B_POWER_OFF_DROP_DOOR_ACCESS
 
 | field | description |
 |---|-----|
-| Length | The length of the packet |
-| Level | The hopper level as reported by the gaming machine |
-| PercentFull | How full the hopper is expressed as a percent |
-| Status | The current hopper status |
+| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
+| SASEvent | The SAS exception code for this real time SAS event |
+| SASPoll | The code sent the gaming machine to request information |
 
 ### SAS_POLL_1B_SEND_HANDPAY_INFORMATION
 
@@ -695,13 +655,28 @@ and the following meters
 | Level | The hopper level as reported by the gaming machine |
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 
-### SAS_EVENT_CODE_32_CMOS_RAM_ERROR
+### SAS_POLL_1F_SEND_GAMING_MACHINE_ID_AND_INFORMATION
 
 | field | description |
 |---|-----|
-| SASEvent | The SAS exception code for this real time SAS event |
-| SASPoll | The code sent the gaming machine to request information |
+| PaytableId | The paytable ID |
+| ProgressiveGroup | The progressive group as reported by the gaming machine |
+| AdditionalId | Additional ID information |
+| BasePercentage | The base percentage |
+| Denomination | The denomination |
+| GameId | The game ID |
+| GameOptions | The game options |
+| MaxBet | The maximum bet |
+
+### SAS_POLL_3D_SEND_CASH_OUT_TICKET_INFORMATION
+
+| field | description |
+|---|-----|
+| AmountInCents | The value of the cash out ticket in cents |
+| HostIDPlayer | The unique identifier for this player as reported by the host system |
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
+| SASPoll | The code sent the gaming machine to request information |
+| TicketNumber | The ticket number |
 
 ### SAS_POLL_48_SEND_LAST_ACCEPTED_BILL_INFORMATION
 
@@ -709,72 +684,100 @@ and the following meters
 |---|-----|
 | Bills | Indicates the number of bills accepted |
 | Country | The country code for the bills accepted |
-| Denom | The denom of the game as reported by the Bally system |
+| Denom | The denom of the game as reported by the host system |
 
-### SAS_EVENT_CODE_12_SLOT_DOOR_WAS_CLOSED
-
-| field | description |
-|---|-----|
-| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
-| SASEvent | The SAS exception code for this real time SAS event |
-| SASPoll | The code sent the gaming machine to request information |
-
-### SendSASVersionIDAndGamingMachineSerialNumber
+### SAS_POLL_4F_SEND_CURRENT_HOPPER_STATUS
 
 | field | description |
 |---|-----|
-| Length | The length of the packet |
+| Length | Internal use only |
+| Level | The hopper level as reported by the gaming machine |
+| PercentFull | How full the hopper is expressed as a percent |
+| Status | The current hopper status |
+
+### SAS_POLL_51_SEND_TOTAL_NUMBER_OF_GAMES_IMPLEMENTED
+
+| field | description |
+|---|-----|
+| NumberOfGames | Total games implemented by this gaming machine |
+
+### SAS_POLL_54_SEND_SAS_VERSION_ID_AND_GAMING_MACHINE_SERIAL_NUMBER
+
+| field | description |
+|---|-----|
 | SasVersionNumber | The SAS version number this gaming machine implements |
 | SerialNumber | The serial number for this gaming machine as reported by the gaming machine |
+| Length | Internal use only |
 
-### SAS_EVENT_CODE_74_PRINTER_PAPER_LOW
+### SAS_POLL_55_SEND_SELECTED_GAME_NUMBER
 
 | field | description |
 |---|-----|
-| HostIDPlayer | The unique identifier for this player as reported by the Bally system |
+| SelectedGameNumber | Indicates which game is being selected |
+
+### SAS_POLL_56_SAS_SEND_ENABLED_GAME_NUMBERS
+
+| field | description |
+|---|-----|
+| EnabledGameNumbers | The numbers for the games that are enabled |
+| Length | Internal use only |
+| NumberOfGames | Total games implemented by this gaming machine |
+
+### SAS_POLL_8F_SEND_PHYSICAL_REEL_STOP_INFORMATION
+
+| field | description |
+|---|-----|
+| PhysicalReelStops | The current physical reel stops |
+
+### SAS_POLL_A0_SEND_ENABLED_FEATURES
+
+| field | description |
+|---|-----|
+| Features | The features that are enabled |
+| GameNumber | The number of the game being selected. |
+| Reserved | Reserved |
+
+### SAS_POLL_A8_ENABLE_JACKPOT_HANDPAY_RESET_METHOD
+
+| field | description |
+|---|-----|
+| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
+| SASPoll | The code sent the gaming machine to request information |
+| AckCode | Used by Acres 4 to implement the SAS protocol |
+
+### SAS_POLL_FF_REAL_TIME_EXCEPTION
+
+| field | description |
+|---|-----|
+| HostIDPlayer | The unique identifier for this player as reported by the host system |
 | MIBTime | The time at which the Machine Interface Board (MIB) received this event |
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
 
-### SAS_EVENT_CODE_7B_BILL_VALIDATOR
+### SendCurrentHopperStatus
 
 | field | description |
 |---|-----|
-| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
-| SASEvent | The SAS exception code for this real time SAS event |
-| SASPoll | The code sent the gaming machine to request information |
+| Length | Internal use only |
+| Level | The hopper level as reported by the gaming machine |
+| PercentFull | How full the hopper is expressed as a percent |
+| Status | The current hopper status |
 
-### SAS_EVENT_CODE_7F_GAME_HAS_ENDED
-
-| field | description |
-|---|-----|
-| GameWin | The amount won from the game |
-| HostIDPlayer | The unique identifier for this player as reported by the Bally system |
-| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
-| SASEvent | The SAS exception code for this real time SAS event |
-| SASPoll | The code sent the gaming machine to request information |
-
-### PlayerInfo
+### SendEnabledFeatures
 
 | field | description |
 |---|-----|
-| LastEventTime | The last time at which Acres 4 saw an event for this player |
-| LastLocation | The last location of the player |
-| LastName | The last name of this player |
-| LoyaltyTierStr | Same as MembershipTierStr |
-| Banned | If true, the player is banned from this casino |
-| BirthDate | The date of birth for this player |
-| CacheTime | The time at which the Acres 4 global event collector collected this event |
-| CardNumber | The card number for this player |
-| ZipCode | The zip code for this player |
-| ZipExt | The zip code extension for the player |
-| HostClubNumber | The player number as reported by the Bally system |
-| MembershipTierStr | The string representation of the membership tier level for this player |
-| Theo | The theoretical win for this player |
-| Crc | Used for internal diagnostics by Acres 4 |
-| FirstName | The first name of the player |
-| Gender | The gender for this player |
-| HostIdPlayer | The unique identifier for this player as reported by the Bally system |
+| GameNumber | The game number currently in use |
+| Reserved | Reserved |
+| Features | The features that are enabled |
+
+### SendEnabledGameNumbers
+
+| field | description |
+|---|-----|
+| EnabledGameNumbers | The numbers for the games that are enabled |
+| Length | Internal use only |
+| NumberOfGames | Total games implemented by this gaming machine |
 
 ### SendGamingMachineIDAndInformation
 
@@ -789,31 +792,6 @@ and the following meters
 | GameOptions | The game options |
 | MaxBet | The maximum bet |
 
-### SAS_POLL_A0_SEND_ENABLED_FEATURES
-
-| field | description |
-|---|-----|
-| Features | The features that are enabled |
-| GameNumber | The number of the game being selected. |
-| Reserved | Reserved |
-
-### SAS_EVENT_CODE_29_BILL_ACCEPTOR_HARDWARE_FAILURE
-
-| field | description |
-|---|-----|
-| HostIDPlayer | The unique identifier for this player as reported by the Bally system |
-| MIBTime | The time at which the Machine Interface Board (MIB) received this event |
-| SASEvent | The SAS exception code for this real time SAS event |
-| SASPoll | The code sent the gaming machine to request information |
-
-### SendEnabledFeatures
-
-| field | description |
-|---|-----|
-| GameNumber | The game number currently in use |
-| Reserved | Reserved |
-| Features | The features that are enabled |
-
 ### SendLastAcceptedBillInformation
 
 | field | description |
@@ -827,3 +805,23 @@ and the following meters
 | field | description |
 |---|-----|
 | PhysicalReelStops | The current physical reel stops |
+
+### SendSASVersionIDAndGamingMachineSerialNumber
+
+| field | description |
+|---|-----|
+| Length | Internal use only |
+| SasVersionNumber | The SAS version number this gaming machine implements |
+| SerialNumber | The serial number for this gaming machine as reported by the gaming machine |
+
+### SendSelectedGameNumber
+
+| field | description |
+|---|-----|
+| SelectedGameNumber | Indicates which game is being selected |
+
+### SendTotalNumberOfGamesImplemented
+
+| field | description |
+|---|-----|
+| NumberOfGames | Total games implemented by this gaming machine |
