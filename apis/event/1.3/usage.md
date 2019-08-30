@@ -2,7 +2,29 @@
 
 ## Connection
 
-Users connect to the event stream replay API over a websocket located at `wss://<property>.kailabor.com/nex7/sas-reader/ws/historical-event-streamer` where `<property>` is the subdomain for the casino running Foundation. Clients enter parameters determining which events to stream as URL parameters following `?`. The API interprets the parameters as follows:
+### Real Time Replay
+
+Users can connect to a real time event replay websocket at `wss://<property>.kailabor.com/nex7/sas-reader/ws/real-time-event-streamer` where `<property>` is the subdomain for the casino running Foundation. Clients enter parameters determining which events to stream as URL parameters following `?`. The API interprets the parameters as follows:
+
+| Field | Description |
+| --- | ------- |
+| raw-json | Send data to the client as a flattened packet described by the data dictionary below. The value should simply be set to `true` |
+| sas_codes | A comma delimited list of real time SAS exception codes. If set, the server will only stream data matching these SAS exception codes to the client. The full list of real time SAS exception codes can be found in Slot Accounting System Protocol Version 6.02 Appendix A Table A-1. Enter codes in decimal notation. |
+| asset_number | A comma delimited list of asset numbers. If set, the server will send data matching these asset numbers. Note that if `sas_serial_number` is also set, the server will apply an `OR` filter to the data |
+| sas_serial_number | A comma delimited list of SAS serial numbers. If set, the server will send data matching these SAS serial numbers. Note that if `asset_number` is also set, the server will apply an `OR` filter to the data |
+| start_idx | Sets the starting `idx` field from which to read data. Acres4 uses this field to apply a global ordering to all data packets in the stream |
+
+While this endpoint is meant for streaming real time events, the server maintains a cache of up to 10,000 events that are up to 10 minutes old, whichever cache is smaller. The `start_idx` filter allows for users to look slightly into the past for older events. An example URL is
+
+`wss://mycasino.kailabor.com/nex7/sas-reader/ws/real-time-event-streamer?raw-json=true&start_idx=161526`
+
+Users must upgrade all requests to a websocket to avoid a `400` error from the server.
+
+The server streams all packets as an array of flat packets, even if there is only once flat packet sent at a time.
+
+### Historical Replay
+
+Users connect to the historical event stream replay API over a websocket located at `wss://<property>.kailabor.com/nex7/sas-reader/ws/historical-event-streamer` where `<property>` is the subdomain for the casino running Foundation. Clients enter parameters determining which events to stream as URL parameters following `?`. The API interprets the parameters as follows:
 
 | Field | Description |
 | --- | ------- |
