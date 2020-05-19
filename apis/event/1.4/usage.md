@@ -127,6 +127,7 @@ Starting with version 1.3, Foundation reports meter changes with a new packet ty
     "host_id_player":"",
     "idx":37656,
     "cache_time":1565039283259,
+    "event_time":1562083037909,
     "data": {
         "CURRENT_CREDITS":19550,
         "ELECTRONIC_REGULAR_CASHABLE_TRANSFERS_TO_GAMING_MACHINE_CREDITS":288000,
@@ -206,7 +207,7 @@ Lastly, many but not all packets contain the following fields in the `data` port
 
 | field | description |
 |---|-----|
-| MIBTime | (DEPRECATED -- will be removed soon) The time at which the Machine Interface Board (MIB) received this event |
+| MIBTime | **(DEPRECATED -- will be removed soon)** The time at which the Machine Interface Board (MIB) received this event |
 | SASEvent | The SAS exception code for this real time SAS event |
 | SASPoll | The code sent the gaming machine to request information |
 
@@ -217,7 +218,7 @@ Data packets that only contain fields listed above are marked with `Standard fie
 | field | description |
 |---|-----|
 | HostIDPlayer | The unique identifier for this player as reported by the host system |
-| MIBTime | (DEPRECATED -- will be removed soon) The time at which the Machine Interface Board (MIB) received this event |
+| MIBTime | **(DEPRECATED -- will be removed soon)** The time at which the Machine Interface Board (MIB) received this event |
 
 ### MachineInfo
 
