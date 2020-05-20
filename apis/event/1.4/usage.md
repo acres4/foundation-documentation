@@ -73,6 +73,7 @@ The server sends flattened data packets to the server in JSON form. Flattened pa
     "host_id_player": "string",
     "idx": int,
     "cache_time": int64,
+    "event_time": int64,
     "data" : map{...},
     "meters" : map{...}
 }
@@ -185,7 +186,7 @@ All packets other than `MachineInfo` and `PlayerInfo` contain the following fiel
 | type | The type of data carried in this packet. |
 | idx | Monotonically increasing uint64 value used to glohost order events in the Nex7 event stream |
 | cache_time | Time at which the global event collector received this event, represented as milliseconds since the start of the Unix epoch |
-| event_time | The time at which the Machine Interface Board (MIB) received this event |
+| event_time | The time at which the Machine Interface Board (MIB) received this event, represented as milliseconds since the start of the Unix epoch |
 | sas_serial_number | String identifier for the machine at which a packet originated. |
 | asset_number | The asset number for the gaming machine as reported by the host system |
 | host_id_player | The unique identifier for the player in the host system |
