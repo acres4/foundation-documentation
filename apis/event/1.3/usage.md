@@ -111,7 +111,7 @@ An example packet might take the following form:
 }
 ```
 
-Fields are defined in the data dictionary below for all packet types
+Starting in versions 1.4.x, all timestamps Unix epoch millisecond timestamps. Fields are defined in the data dictionary below for all packet types
 
 ### Meter Movement
 
