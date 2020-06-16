@@ -8,7 +8,7 @@ Users can connect to a real time event replay websocket at `wss://<property>.kai
 
 | Field | Description |
 | --- | ------- |
-| raw-json | Send data to the client as a flattened packet described by the data dictionary below. The value should simply be set to `true` |
+| raw-json | Send data to the client as a flattened packet described by the data dictionary below. The value should simply be set to `true`. Deprecated - The API only sends data in JSON form starting in 1.4.3 |
 | sas_codes | A comma delimited list of real time SAS exception codes. If set, the server will only stream data matching these SAS exception codes to the client. The full list of real time SAS exception codes can be found in Slot Accounting System Protocol Version 6.02 Appendix A Table A-1. Enter codes in decimal notation. |
 | asset_number | A comma delimited list of asset numbers. If set, the server will send data matching these asset numbers. Note that if `sas_serial_number` is also set, the server will apply an `OR` filter to the data |
 | sas_serial_number | A comma delimited list of SAS serial numbers. If set, the server will send data matching these SAS serial numbers. Note that if `asset_number` is also set, the server will apply an `OR` filter to the data |
@@ -20,7 +20,7 @@ While this endpoint is meant for streaming real time events, the server maintain
 
 Users must upgrade all requests to a websocket to avoid a `400` error from the server.
 
-The server streams all packets as an array of flat packets, even if there is only once flat packet sent at a time.
+The server streams all packets as an array of flat packets (as of 1.4.3 these are simple flat packets, not arrays), even if there is only once flat packet sent at a time.
 
 ### Historical Replay
 
@@ -31,20 +31,20 @@ Users connect to the historical event stream replay API over a websocket located
 | start | The time from which to start streaming data, expressed as nanoseconds since the beginning of the Unix epoch |
 | end | The time at which to stop streaming data, expressed as nanoseconds since the beginning of the Unix epoch |
 | limit | Limit the total number of packets to process before sending to the client |
-| raw-json | Send data to the client as a flattened packet described by the data dictionary below. The value should simply be set to `true` |
+| raw-json | Send data to the client as a flattened packet described by the data dictionary below. The value should simply be set to `true`. Deprecated - The API only sends data in JSON form starting in 1.4.3 |
 | sas_codes | A comma delimited list of real time SAS exception codes. If set, the server will only stream data matching these SAS exception codes to the client. The full list of real time SAS exception codes can be found in Slot Accounting System Protocol Version 6.02 Appendix A Table A-1. Enter codes in decimal notation. |
 | asset_number | A comma delimited list of asset numbers. If set, the server will send data matching these asset numbers. Note that if `sas_serial_number` is also set, the server will apply an `OR` filter to the data |
 | sas_serial_number | A comma delimited list of SAS serial numbers. If set, the server will send data matching these SAS serial numbers. Note that if `asset_number` is also set, the server will apply an `OR` filter to the data |
-| start_idx | Sets the starting `idx` field from which to read data. Acres4 uses this field to apply a global ordering to all data packets in the stream |
-| end_idx | Sets the ending `idx` field to which to read data. Acres4 uses this field to apply a global ordering to all data packets in the stream |
+| start_idx | Sets the starting `idx` field from which to read data. Acres4 uses this field to apply a global ordering to all data packets in the stream. Removed in 1.4.3 |
+| end_idx | Sets the ending `idx` field to which to read data. Acres4 uses this field to apply a global ordering to all data packets in the stream. Removed in 1.4.3 |
 
 If using `start` and `end` filters, leave `start_idx` and `end_idx` fields blank. Likewise, if using `start_idx` and `end_idx` fields, leave `start` and `end` fields blank. Because indexes are sequential, any `limit` set on a query bounded by `start_idx` and `end_idx` is ignored. Use these fields to bound your query instead. An example URL for reading data is as follows:
 
-`wss://mycasino.kailabor.com/nex7/sas-reader/ws/historical-event-streamer?start=1561705200000000000&end=1562184823000000000&limit=50000&raw-json=true`
+`wss://mycasino.kailabor.com/nex7/sas-reader/ws/historical-event-streamer?start=1561705200000000000&end=1562184823000000000&limit=50000`
 
 Users must upgrade all requests to a websocket to avoid a `400` error from the server.
 
-The server streams all packets as an array of flat packets, even if there is only once flat packet sent at a time.
+The server streams all packets as an array of flat packets (as of 1.4.3 these are simple flat packets, not arrays), even if there is only once flat packet sent at a time.
 
 ## Performance
 
@@ -74,10 +74,30 @@ The server sends flattened data packets to the server in JSON form. Flattened pa
     "idx": int,
     "cache_time": int64,
     "event_time": int64,
+    "sas_queue_index": int64,
+    "hdr_id": int64,
+    "dest":int32,
+    "device_serial_number": string,
     "data" : map{...},
     "meters" : map{...}
 }
 ```
+
+The top level fields in the data packet have the following definitions:
+
+| Field | Description |
+|:---:|:---:|
+| type | Indicates the type of packet this is, e.g. which slot poll or exception, meter movement, etc.|
+| sas_serial_number | The serial number of the EGM at which this event originated if any |
+| player_card_number | The card number for the player to associate with this event, if any |
+| asset_number | The asset number for the gaming machine, if any |
+| host_id_player | The unique identifier for the player to associate with this event according to the player tracking system |
+| cache_time | The millisecond Unix epoch timestamp at which the event collector received the event |
+| event_time | The millisecond Unix epoch timestamp at which the Bridge board received the event |
+| sas_queue_index | A monotonically increasing index of events that all passed through a single Bridge board |
+| hdr_id | An index of events that all passed through the same GMI |
+| dest | The index of the Bridge board component from this this event originated |
+| device_serial_number | The serial number for the Foundation device at which this event originatated. This includes, GMIs, player tracking units and Bluetooth tranceivers |
 
 An example packet might take the following form:
 
@@ -91,6 +111,11 @@ An example packet might take the following form:
     "idx":55903787,
     "cache_time":1561852795766,
     "event_time":1561852793880,
+    "sas_queue_index":29870,
+    "hdr_id": 3733,
+    "serial_number": "deadbeef",
+    "device_serial_number": "83939292773849",
+    "dest": 2,
     "data":{
         "CreditsWagered":120,
         "HostIDPlayer":"49000713",
